@@ -468,7 +468,7 @@ html.wc-open .ww{right:432px;bottom:22px}@media(max-width:900px){html.wc-open .w
 </div></footer>
 
 <button class="aifab off" id="aifab" aria-label="Chat with the Wells AI concierge" onclick="window.WellsChat&&WellsChat.open()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="t" data-es="Pregunte a Wells">Ask Wells</span><span class="dot"></span></button>
-<script src="audio/manifest.js?v=20261102b"></script>
+<script src="audio/manifest.js?v=20261102c"></script>
 <script src="../shared/wells-chat.js" defer></script>
 <script>
 (()=>{const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let L='en';
@@ -519,8 +519,8 @@ function reply(q){const es=L=='es',tg=[],out={cards:[],chips:[],lead:false};
  else if(q.intent=='agent'){out.say=T('Of course. Leave your email or phone and Ruben or a member of the team will reach out personally, or call 408.528.4477.','Claro. Deje su correo o teléfono y Ruben o alguien del equipo le contactará personalmente, o llame al 408.528.4477.');out.lead=true;out.chips=[[T('Meet the team','Conocer al equipo'),'#team']]}
  else if(q.intent=='rent'){out.say=T('We focus on buying and selling, so we don\'t carry rentals. If you\'re weighing a purchase instead, Ruben can walk you through it.','Nos enfocamos en compra y venta, así que no manejamos rentas. Si considera comprar, Ruben puede orientarle.');out.lead=true}
  else{const where=q.areas.length?q.areas.map(a=>a[0]).join(es?' y ':' and '):T('the South Bay, the Central Coast and San Diego','el Sur de la Bahía, la Costa Central y San Diego');
-  out.say=fits?T(`Here's what fits: our featured listing in Prunedale, 3 bedrooms on 4.87 acres at $1,075,999. Our public inventory is small, so Ruben can also send you on- and off-market homes in ${where}.`,`Esto coincide: nuestra propiedad destacada en Prunedale, 3 recámaras en 4.87 acres por $1,075,999. Nuestro inventario público es pequeño, así que Ruben puede enviarle casas dentro y fuera del mercado en ${where}.`)
-   :T(`I don't have a public listing that matches${q.areas.length?' in '+where:''} right now. Our inventory is limited, but Ruben can send you matching homes, including off-market ones, as soon as they come up.`,`Ahora no tengo una propiedad pública que coincida${q.areas.length?' en '+where:''}. Nuestro inventario es limitado, pero Ruben puede enviarle casas que coincidan, incluso fuera del mercado, en cuanto surjan.`);
+  out.say=fits?T(`Here's what fits: our featured listing in Prunedale, 3 bedrooms on 4.87 acres at $1,075,999. Ruben can also send you on- and off-market homes in ${where}.`,`Esto coincide: nuestra propiedad destacada en Prunedale, 3 recámaras en 4.87 acres por $1,075,999. Ruben también puede enviarle casas dentro y fuera del mercado en ${where}.`)
+   :T(`I don't have a public listing that matches${q.areas.length?' in '+where:''} right now. Ruben can send you matching homes, including off-market ones, as soon as they come up.`,`Ahora no tengo una propiedad pública que coincida${q.areas.length?' en '+where:''}. Ruben puede enviarle casas que coincidan, incluso fuera del mercado, en cuanto surjan.`);
   if(!q.intent&&!q.areas.length&&!q.max&&!q.beds&&!q.type)out.say=T('I can help you buy, sell or value a home across San Jose, Morgan Hill, Gilroy, Salinas and San Diego. Tell me an area, a budget or how many bedrooms.','Puedo ayudarle a comprar, vender o valorar una casa en San Jose, Morgan Hill, Gilroy, Salinas y San Diego. Dígame una zona, un presupuesto o cuántas recámaras.');
   if(fits)out.cards.push('L');(q.areas.length?q.areas:[AREAS[0],AREAS[2]]).slice(0,fits?1:2).forEach(a=>out.cards.push(a));
   out.lead=true;out.chips=[[T('Under $1.5M','Menos de $1.5M'),'+ under 1.5 million'],[T('With acreage','Con terreno'),'+ with acreage'],[T('In San Diego','En San Diego'),'+ in San Diego'],[T('Tour Echo Valley','Visitar Echo Valley'),'#featured']]}
@@ -550,13 +550,13 @@ function spoken(t){const es=L=='es';return t.replace(/\$\s?(\d[\d,]*(?:\.\d+)?)\
 let speakTok=0;const AU=new Audio();AU.preload='auto';let auUnlocked=false;
 const akey=(l,t)=>{let h=0x811c9dc5;for(const c of l+'|'+t){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(16).padStart(8,'0')};
 const AUSET=new Set(window.WELLS_AUDIO||[]);
-document.addEventListener('pointerdown',()=>{if(auUnlocked)return;auUnlocked=true;try{AU.src='audio/silence.mp3?v=20261102b';AU.play().catch(()=>{})}catch(e){}},{capture:true});
+document.addEventListener('pointerdown',()=>{if(auUnlocked)return;auUnlocked=true;try{AU.src='audio/silence.mp3?v=20261102c';AU.play().catch(()=>{})}catch(e){}},{capture:true});
 function stopVoice(){speakTok++;try{AU.pause()}catch(e){}window.speechSynthesis&&speechSynthesis.cancel()}
 window.WELLS_SPEAKING=()=>!AU.paused||(window.speechSynthesis&&speechSynthesis.speaking);
 function speak(t){stopVoice();const tok=speakTok;if(muted){state('idle');return}
  try{if(rec){try{rec.abort()}catch(e){}rec=null}
   const parts=spoken(t).match(/[^.!?¿¡]+[.!?]*|[¿¡][^.!?]+[.!?]*/g)?.map(x=>x.trim()).filter(Boolean)||[t];
-  const lg=L,files=parts.map(p=>{const k=akey(lg,p);return AUSET.has(k)?'audio/'+lg+'/'+k+'.mp3?v=20261102b':null});
+  const lg=L,files=parts.map(p=>{const k=akey(lg,p);return AUSET.has(k)?'audio/'+lg+'/'+k+'.mp3?v=20261102c':null});
   files.forEach(f=>{if(f){const a=new Audio();a.preload='auto';a.src=f}});
   let i=0;state('speak');
   const browser=(txt,done)=>{if(!window.speechSynthesis){done();return}const v=pickVoice(),u=new SpeechSynthesisUtterance(txt);u.lang=v?v.lang:(lg=='es'?'es-US':'en-US');if(v)u.voice=v;u.rate=.95;u.onend=done;u.onerror=done;speechSynthesis.speak(u)};
@@ -633,7 +633,7 @@ $('#lead').onsubmit=e=>{e.preventDefault();WELLS_LEADS.push({type:'contact',data
  const el=document.createElement('aside');el.className='ww';el.setAttribute('role','dialog');el.setAttribute('aria-label','Welcome');
  const A=new Audio();A.preload='auto';let played=false;
  const paint=()=>{const t=TX[lg()];el.innerHTML=`<button class="ww-x" aria-label="${t[5]}">×</button><h4>${t[0]}</h4><p>${t[1]}</p><button class="ww-play" type="button"><i></i><span>${el.classList.contains('playing')?t[3]:t[2]}</span></button><div class="ww-row"><button type="button" data-a="chat">${t[4]}</button><button type="button" data-a="x">${t[5]}</button></div>`};
- const play=()=>{played=true;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}const src='audio/'+lg()+'/welcome.mp3?v=20261102b';if(!A.src.endsWith(src))A.src=src;A.play().then(()=>{el.classList.add('playing');paint()}).then(unbind).catch(()=>{played=false})};
+ const play=()=>{played=true;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}const src='audio/'+lg()+'/welcome.mp3?v=20261102c';if(!A.src.endsWith(src))A.src=src;A.play().then(()=>{el.classList.add('playing');paint()}).then(unbind).catch(()=>{played=false})};
  A.onended=A.onpause=()=>{el.classList.remove('playing');paint()};
  const close=()=>{A.pause();el.classList.remove('on');setTimeout(()=>el.remove(),500);try{sessionStorage.setItem(KEY,'1')}catch(e){}unbind()};
  el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('ww-x')||b.dataset.a=='x')close();else if(b.dataset.a=='chat'){window.WellsChat&&WellsChat.open()}else if(b.classList.contains('ww-play')){A.paused?play():A.pause()}});
