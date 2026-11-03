@@ -307,6 +307,13 @@ b,.price,.range,.specs b,.facts b{font-variant-numeric:lining-nums;font-feature-
 .hero .places i{width:2px;height:2px}
 }
 @media (max-width:420px){.hero .places .wrap{letter-spacing:.14em;gap:7px;font-size:8.5px}}@media (max-width:350px){.hero .places .wrap{letter-spacing:.08em;gap:5px;font-size:8px}}
+.ww{position:fixed;right:22px;bottom:86px;z-index:9002;width:min(340px,calc(100vw - 32px));background:#0f2a20;color:#f3eee4;border-radius:18px;padding:18px 18px 16px;box-shadow:0 18px 50px rgba(0,0,0,.35);font:14px/1.5 Inter,system-ui,sans-serif;opacity:0;transform:translateY(14px);transition:.5s cubic-bezier(.2,.8,.2,1)}
+.ww.on{opacity:1;transform:none}.ww h4{margin:0 26px 6px 0;font:400 22px/1.2 'Cormorant Garamond',serif}.ww p{margin:0 0 12px;opacity:.86}
+.ww-x{position:absolute;top:8px;right:10px;background:none;border:0;color:inherit;font-size:22px;cursor:pointer;opacity:.7;min-width:36px;min-height:36px}
+.ww-play{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;min-height:44px;border:0;border-radius:999px;background:#c5a46d;color:#10261d;font:600 13px Inter,sans-serif;letter-spacing:.04em;cursor:pointer}
+.ww-play i{width:0;height:0;border-left:10px solid currentColor;border-top:6px solid transparent;border-bottom:6px solid transparent}.ww.playing .ww-play i{width:10px;height:12px;border:0;border-left:3px solid;border-right:3px solid}
+.ww-row{display:flex;gap:8px;margin-top:8px}.ww-row button{flex:1;min-height:38px;background:none;border:1px solid rgba(255,255,255,.3);border-radius:999px;color:inherit;font:12px Inter,sans-serif;cursor:pointer}
+html.wc-open .ww{right:432px;bottom:22px}@media(max-width:900px){html.wc-open .ww{display:none}}
 </style>
 </head>
 <body>
@@ -461,6 +468,7 @@ b,.price,.range,.specs b,.facts b{font-variant-numeric:lining-nums;font-feature-
 </div></footer>
 
 <button class="aifab off" id="aifab" aria-label="Chat with the Wells AI concierge" onclick="window.WellsChat&&WellsChat.open()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="t" data-es="Pregunte a Wells">Ask Wells</span><span class="dot"></span></button>
+<script src="audio/manifest.js"></script>
 <script src="../shared/wells-chat.js" defer></script>
 <script>
 (()=>{const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let L='en';
@@ -519,7 +527,7 @@ function reply(q){const es=L=='es',tg=[],out={cards:[],chips:[],lead:false};
  out.chips.push([T('Ask Wells chat','Chat Ask Wells'),'chat']);return out}
 const VS=$('#vs'),VR=$('#vres'),VTR=$('#vtr'),VQ=$('#vq');let lastQ='',rec=null,muted=false;try{muted=localStorage.getItem('wells-mute')=='1'}catch(e){}
 function state(s,label){VS.dataset.s=s;$('#vstate b').textContent=label||{idle:T('Ready','Listo'),listen:T('Listening…','Escuchando…'),think:T('Thinking…','Pensando…'),speak:T('Speaking','Hablando')}[s]}
-function setMute(m){muted=m;$('#vmute').setAttribute('aria-pressed',m);$('#vmutel').textContent=m?T('Voice off','Voz desactivada'):T('Voice on','Voz activada');try{localStorage.setItem('wells-mute',m?'1':'0')}catch(e){}if(m&&window.speechSynthesis)speechSynthesis.cancel()}
+function setMute(m){muted=m;$('#vmute').setAttribute('aria-pressed',m);$('#vmutel').textContent=m?T('Voice off','Voz desactivada'):T('Voice on','Voz activada');try{localStorage.setItem('wells-mute',m?'1':'0')}catch(e){}if(m)try{stopVoice()}catch(e){}}
 $('#vmute').onclick=()=>setMute(!muted);setMute(muted);
 let VOICES=[];const loadV=()=>{try{VOICES=speechSynthesis.getVoices()}catch(e){}};if(window.speechSynthesis){loadV();speechSynthesis.addEventListener('voiceschanged',loadV)}
 const PREF={en:[/Aria.*Natural/i,/Jenny.*Natural/i,/Guy.*Natural/i,/Online \(Natural\).*English \(United States\)/i,/Natural.*en-US/i,/^Google US English$/i,/Ava.*(Premium|Enhanced)/i,/Samantha.*(Premium|Enhanced)/i,/^Ava/i,/^Samantha/i],
@@ -528,21 +536,34 @@ function pickVoice(){const lg=L=='es'?'es':'en',vs=VOICES.filter(v=>v.lang&&v.la
  return vs.find(v=>/en-US|es-US|es-MX/i.test(v.lang)&&v.localService===false)||vs.find(v=>v.default)||vs[0]||null}
 window.WELLS_VOICE=()=>{const v=pickVoice();return v?v.name+' ('+v.lang+')':'browser default'};
 const NUM=['zero','one','two','three','four','five','six','seven','eight','nine'],NUMES=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
-function sayMoney(n,es){const W=es?NUMES:NUM;if(n>=1e6){const m=n/1e6,r=m>=10?Math.round(m*10)/10:Math.round(m*1000)/1000,[i,d]=String(r).split('.');
-  return es?(i+(d?' punto '+d.split('').map(x=>W[x]).join(' '):'')+(r==1?' millón de dólares':' millones de dólares')):(i+(d?' point '+d.split('').map(x=>x=='0'?'oh':W[x]).join(' '):'')+' million dollars')}
- if(n>=1e3)return Math.round(n/1e3)+(es?' mil dólares':' thousand dollars');return n+(es?' dólares':' dollars')}
-function spoken(t){const es=L=='es';return t.replace(/\$\s?([\d,.]+)\s*([MK])?\b/gi,(m,x,u)=>{let v=parseFloat(x.replace(/,/g,''));if(u)v*=/m/i.test(u)?1e6:1e3;return sayMoney(v,es)})
- .replace(/([\d,]+)\s*sq ft/gi,(m,x)=>x.replace(/,/g,'')+(es?' pies cuadrados':' square feet')).replace(/(\d)\.(\d+)\s*acres/gi,'$1 point $2 acres').replace(/\b408\.528\.4477\b/,es?'cuatro cero ocho, cinco dos ocho, cuatro cuatro siete siete':'four oh eight, five two eight, four four seven seven')
+const W1=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'],W10=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const E1=['cero','un','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiún','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'],E10=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'],E100=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+function w3(n,es){if(es){if(n==100)return 'cien';const h=Math.floor(n/100),r=n%100;let o=h?E100[h]:'';if(r)o+=(o?' ':'')+(r<30?E1[r]:E10[Math.floor(r/10)]+(r%10?' y '+E1[r%10]:''));return o}
+ const h=Math.floor(n/100),r=n%100;let o=h?W1[h]+' hundred':'';if(r)o+=(o?' ':'')+(r<20?W1[r]:W10[Math.floor(r/10)]+(r%10?'-'+W1[r%10]:''));return o}
+function words(n,es){n=Math.round(n);if(!n)return es?'cero':'zero';const m=Math.floor(n/1e6),k=Math.floor(n/1e3)%1000,r=n%1000,o=[];
+ if(m)o.push(es?(m==1?'un millón':w3(m,1)+' millones'):w3(m)+' million');if(k)o.push(es?(k==1?'mil':w3(k,1)+' mil'):w3(k)+' thousand');if(r)o.push(w3(r,es));return o.join(' ')}
+function sayMoney(n,es){n=Math.round(n);if(n>=1e6&&n%1e6==5e5&&n<1e7)return es?words(n,1)+' de dólares':words(Math.floor(n/1e6))+' and a half million dollars';
+ return words(n,es)+(es?(n%1e6==0?' de dólares':' dólares'):' dollars')}
+function spoken(t){const es=L=='es';return t.replace(/\$\s?(\d[\d,]*(?:\.\d+)?)\s*([MK])?\b/gi,(m,x,u)=>{let v=parseFloat(x.replace(/,/g,''));if(u)v*=/m/i.test(u)?1e6:1e3;return sayMoney(v,es)})
+ .replace(/([\d,]+)\s*sq ft/gi,(m,x)=>x.replace(/,/g,'')+(es?' pies cuadrados':' square feet')).replace(/(\d)\.(\d+)\s*acres/gi,(m,a,b)=>es?words(+a,1).replace(/^un$/,'uno')+' punto '+words(+b,1)+' acres':W1[a]+' point '+b.split('').map(x=>W1[x]).join(' ')+' acres').replace(/\b408\.528\.4477\b/,es?'cuatro cero ocho, cinco dos ocho, cuatro cuatro siete siete':'four oh eight, five two eight, four four seven seven')
  .replace(/\bon- and off-market\b/i,'on and off market').replace(/\s+/g,' ')}
-let speakTok=0;
-function speak(t){const tok=++speakTok;if(muted||!window.speechSynthesis){state('idle');return}
- try{if(rec){try{rec.abort()}catch(e){}rec=null}speechSynthesis.cancel();
+let speakTok=0;const AU=new Audio();AU.preload='auto';let auUnlocked=false;
+const akey=(l,t)=>{let h=0x811c9dc5;for(const c of l+'|'+t){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(16).padStart(8,'0')};
+const AUSET=new Set(window.WELLS_AUDIO||[]);
+document.addEventListener('pointerdown',()=>{if(auUnlocked)return;auUnlocked=true;try{AU.src='audio/silence.mp3';AU.play().catch(()=>{})}catch(e){}},{capture:true});
+function stopVoice(){speakTok++;try{AU.pause()}catch(e){}window.speechSynthesis&&speechSynthesis.cancel()}
+window.WELLS_SPEAKING=()=>!AU.paused||(window.speechSynthesis&&speechSynthesis.speaking);
+function speak(t){stopVoice();const tok=speakTok;if(muted){state('idle');return}
+ try{if(rec){try{rec.abort()}catch(e){}rec=null}
   const parts=spoken(t).match(/[^.!?¿¡]+[.!?]*|[¿¡][^.!?]+[.!?]*/g)?.map(x=>x.trim()).filter(Boolean)||[t];
-  const go=()=>{const v=pickVoice();let i=0;state('speak');
-   const next=()=>{if(tok!=speakTok)return;if(i>=parts.length){state('idle');return}
-    const u=new SpeechSynthesisUtterance(parts[i++]);u.lang=v?v.lang:(L=='es'?'es-US':'en-US');if(v)u.voice=v;u.rate=.95;u.pitch=1;
-    u.onend=()=>setTimeout(next,220);u.onerror=()=>{if(tok==speakTok)state('idle')};speechSynthesis.speak(u)};next()};
-  if(VOICES.length)go();else{let done=0;const once=()=>{if(done++)return;loadV();go()};speechSynthesis.addEventListener('voiceschanged',once,{once:true});setTimeout(once,700)}}catch(e){state('idle')}}
+  const lg=L,files=parts.map(p=>{const k=akey(lg,p);return AUSET.has(k)?'audio/'+lg+'/'+k+'.mp3':null});
+  files.forEach(f=>{if(f){const a=new Audio();a.preload='auto';a.src=f}});
+  let i=0;state('speak');
+  const browser=(txt,done)=>{if(!window.speechSynthesis){done();return}const v=pickVoice(),u=new SpeechSynthesisUtterance(txt);u.lang=v?v.lang:(lg=='es'?'es-US':'en-US');if(v)u.voice=v;u.rate=.95;u.onend=done;u.onerror=done;speechSynthesis.speak(u)};
+  const next=()=>{if(tok!=speakTok)return;if(i>=parts.length){state('idle');return}const j=i++,done=()=>{if(tok==speakTok)setTimeout(next,150)};
+   if(files[j]){AU.onended=done;AU.onerror=()=>{AU.onerror=null;browser(parts[j],done)};AU.src=files[j];AU.play().catch(()=>{AU.onended=null;AU.onerror=null;browser(parts[j],done)})}else browser(parts[j],done)};
+  if(files.some(f=>!f)&&window.speechSynthesis&&!VOICES.length){let d=0;const once=()=>{if(d++)return;loadV();next()};speechSynthesis.addEventListener('voiceschanged',once,{once:true});setTimeout(once,700)}else next()}catch(e){state('idle')}}
+window.WELLS_DBG={AREAS,reply,spoken,akey,setL,T:(a,b)=>T(a,b)};
 function card(c){if(c=='L')return `<button class="vc" data-go="#featured"><div class="ph"><img src="${LST.img}" alt="319 Echo Valley Rd" loading="lazy"></div><div class="b"><span class="k">${T('Featured listing · Prunedale','Propiedad destacada · Prunedale')}</span><h4>319 Echo Valley Rd</h4><p>$1,075,999 · 3 ${T('bd','rec.')} · 2 ${T('ba','baños')} · 1,220 ${T('sq ft','pies²')} · 4.87 ${T('acres','acres')}</p></div></button>`;
  return `<button class="vc" data-tab="${c[5]}"><div class="ph"><img src="../media/${c[2]}.jpg" alt="${c[0]}" loading="lazy"></div><div class="b"><span class="k">${T('Area guide','Guía de zona')}</span><h4>${c[0]}</h4><p>${T(c[3],c[4])}</p></div></button>`}
 function run(text){text=(text||'').trim();if(!text){VQ.focus();VTR.textContent=T('Type or say what you\'re looking for.','Escriba o diga lo que busca.');return}
@@ -561,9 +582,9 @@ function fallback(why){state('idle');VTR.classList.remove('interim');VTR.textCon
 $('#vmic').onclick=()=>{if(VQ.value.trim()){run(VQ.value);return}
  if(rec){rec.stop();return}
  if(!SR){fallback(T('Voice input isn\'t available in this browser, so just type your request below. I\'ll answer the same way.','La voz no está disponible en este navegador; escriba su búsqueda abajo y le respondo igual.'));return}
- try{speakTok++;window.speechSynthesis&&speechSynthesis.cancel();rec=new SR();rec.lang=L=='es'?'es-US':'en-US';rec.interimResults=true;rec.continuous=false;let fin='',got=false;
+ try{stopVoice();rec=new SR();rec.lang=L=='es'?'es-US':'en-US';rec.interimResults=true;rec.continuous=false;let fin='',got=false;
   rec.onstart=()=>{state('listen');VTR.classList.add('interim');VTR.textContent=T('Listening… go ahead.','Escuchando… adelante.')};
-  rec.onresult=e=>{if(window.speechSynthesis&&speechSynthesis.speaking)return;got=true;let it='';fin='';for(const r of e.results){r.isFinal?fin+=r[0].transcript:it+=r[0].transcript}VTR.textContent=(fin+' '+it).trim();VQ.value=(fin+' '+it).trim()};
+  rec.onresult=e=>{if(WELLS_SPEAKING())return;got=true;let it='';fin='';for(const r of e.results){r.isFinal?fin+=r[0].transcript:it+=r[0].transcript}VTR.textContent=(fin+' '+it).trim();VQ.value=(fin+' '+it).trim()};
   rec.onerror=e=>{got=got||false;rec._err=e.error};
   rec.onend=()=>{const t=VQ.value.trim(),err=rec&&rec._err;rec=null;if(t){run(t);return}
    fallback(err=='not-allowed'||err=='service-not-allowed'?T('Microphone access is off. No problem, type your request below and I\'ll take it from there.','El micrófono está desactivado. No hay problema: escriba su búsqueda abajo.'):T('I didn\'t catch anything that time. Tap to try again, or type below.','No escuché nada esta vez. Toque para intentar de nuevo o escriba abajo.'))};
@@ -602,6 +623,26 @@ $('#gate').addEventListener('keydown',e=>{if(e.key=='Enter'){e.preventDefault();
  (function tick(t){const k=Math.min(1,(t-t0)/1200),e2=1-Math.pow(1-k,3);$('#rg').textContent=fmt(lo*e2)+' – '+fmt(hi*e2);if(k<1)requestAnimationFrame(tick)})(t0);
  $('#gn').textContent=T(`Thank you, ${n.split(' ')[0]}. Ruben will send a full comparable-sales analysis to ${em}.`,`Gracias, ${n.split(' ')[0]}. Ruben enviará un análisis completo a ${em}.`)};
 $('#lead').onsubmit=e=>{e.preventDefault();WELLS_LEADS.push({type:'contact',data:[...e.target.elements].map(x=>x.value)});[...e.target.children].forEach(c=>c.id!='thx'&&(c.style.display='none'));$('#thx').style.display='block'};
+})();
+</script>
+<script>
+(()=>{const KEY='wells-welcome-dismissed';try{if(localStorage.getItem(KEY)=='1'||/[?&]nowelcome/.test(location.search))return}catch(e){}
+ const lg=()=>document.documentElement.lang=='es'?'es':'en';
+ const TX={en:['Welcome, Ruben.','This is your new site. Clients can search by voice in English or Spanish, get an instant AI home estimate, and chat with Ask Wells any time.','Tap to hear your welcome','Pause','Open chat','Dismiss'],
+  es:['Bienvenido, Ruben.','Este es su nuevo sitio. Sus clientes pueden buscar con la voz en inglés o español, obtener una estimación con IA al instante y conversar con Ask Wells a toda hora.','Toque para escuchar su bienvenida','Pausa','Abrir chat','Cerrar']};
+ const el=document.createElement('aside');el.className='ww';el.setAttribute('role','dialog');el.setAttribute('aria-label','Welcome');
+ const A=new Audio();A.preload='auto';let played=false;
+ const paint=()=>{const t=TX[lg()];el.innerHTML=`<button class="ww-x" aria-label="${t[5]}">×</button><h4>${t[0]}</h4><p>${t[1]}</p><button class="ww-play" type="button"><i></i><span>${el.classList.contains('playing')?t[3]:t[2]}</span></button><div class="ww-row"><button type="button" data-a="chat">${t[4]}</button><button type="button" data-a="x">${t[5]}</button></div>`};
+ const play=()=>{played=true;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}const src='audio/'+lg()+'/welcome.mp3';if(!A.src.endsWith(src))A.src=src;A.play().then(()=>{el.classList.add('playing');paint()}).catch(()=>{played=false})};
+ A.onended=A.onpause=()=>{el.classList.remove('playing');paint()};
+ const close=()=>{A.pause();el.classList.remove('on');setTimeout(()=>el.remove(),500);try{localStorage.setItem(KEY,'1')}catch(e){}document.removeEventListener('pointerdown',first,true)};
+ el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('ww-x')||b.dataset.a=='x')close();else if(b.dataset.a=='chat'){window.WellsChat&&WellsChat.open()}else if(b.classList.contains('ww-play')){A.paused?play():A.pause()}});
+ function first(e){if(el.contains(e.target)||played||!el.isConnected)return;document.removeEventListener('pointerdown',first,true);play()}
+ window.addEventListener('load',()=>setTimeout(()=>{paint();document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
+  if(matchMedia('(min-width:901px)').matches&&window.WellsChat)WellsChat.open();
+  document.addEventListener('pointerdown',first,true);
+  new MutationObserver(()=>{if(!el.classList.contains('playing'))paint()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  A.play&&(A.src='audio/'+lg()+'/welcome.mp3',A.play().then(()=>{played=true;el.classList.add('playing');paint()}).catch(()=>{}))},2500));
 })();
 </script>
 </body>
