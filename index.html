@@ -628,8 +628,8 @@ $('#lead').onsubmit=e=>{e.preventDefault();WELLS_LEADS.push({type:'contact',data
 <script>
 (()=>{const KEY='wells-welcome-dismissed';try{if(localStorage.getItem(KEY)=='1'||/[?&]nowelcome/.test(location.search))return}catch(e){}
  const lg=()=>document.documentElement.lang=='es'?'es':'en';
- const TX={en:['Welcome, Ruben.','This is your new site. Clients can search by voice in English or Spanish, get an instant AI home estimate, and chat with Ask Wells any time.','Tap to hear your welcome','Pause','Open chat','Dismiss'],
-  es:['Bienvenido, Ruben.','Este es su nuevo sitio. Sus clientes pueden buscar con la voz en inglés o español, obtener una estimación con IA al instante y conversar con Ask Wells a toda hora.','Toque para escuchar su bienvenida','Pausa','Abrir chat','Cerrar']};
+ const TX={en:['Welcome, Ruben.','Your new site: licensed since 2004, bilingual, from the South Bay to San Diego, with Echo Valley up front. Clients can search by voice, get an instant AI estimate, and chat with Ask Wells day or night. VSH Media handles the rest (the site, listing marketing, video and virtual staging), all included.','Tap to hear your welcome','Pause','Open chat','Dismiss'],
+  es:['Bienvenido, Ruben.','Su nuevo sitio: con licencia desde 2004, bilingüe, del South Bay a San Diego, con Echo Valley al frente. Sus clientes pueden buscar con la voz, obtener una estimación con IA y conversar con Ask Wells a toda hora. VSH Media se encarga del resto (el sitio, el marketing, el video y el staging virtual), todo incluido.','Toque para escuchar su bienvenida','Pausa','Abrir chat','Cerrar']};
  const el=document.createElement('aside');el.className='ww';el.setAttribute('role','dialog');el.setAttribute('aria-label','Welcome');
  const A=new Audio();A.preload='auto';let played=false;
  const paint=()=>{const t=TX[lg()];el.innerHTML=`<button class="ww-x" aria-label="${t[5]}">×</button><h4>${t[0]}</h4><p>${t[1]}</p><button class="ww-play" type="button"><i></i><span>${el.classList.contains('playing')?t[3]:t[2]}</span></button><div class="ww-row"><button type="button" data-a="chat">${t[4]}</button><button type="button" data-a="x">${t[5]}</button></div>`};
